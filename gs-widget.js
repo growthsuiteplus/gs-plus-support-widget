@@ -2,6 +2,11 @@
 
   if (document.getElementById("gs-plus-widget")) return;
 
+  // ---- Declare ALL variables at the top ----
+  let isDragging = false;
+  let hasDragged = false;
+  let startX, startY, startLeft, startTop;
+
   const style = document.createElement("style");
   style.innerHTML = `
     #gs-plus-widget {
@@ -169,6 +174,7 @@
   `;
   document.head.appendChild(style);
 
+  // ---- Create Widget Button ----
   const widget = document.createElement("div");
   widget.id = "gs-plus-widget";
   widget.innerHTML = `
@@ -177,6 +183,7 @@
   `;
   document.body.appendChild(widget);
 
+  // ---- Create Panel ----
   const panel = document.createElement("div");
   panel.id = "gs-widget-panel";
   panel.innerHTML = `
@@ -207,11 +214,13 @@
   `;
   document.body.appendChild(panel);
 
+  // ---- Button References ----
   const btn = document.getElementById("gs-widget-btn");
   const closeBtn = document.getElementById("gs-panel-close");
 
+  // ---- Toggle Panel ----
   btn.addEventListener("click", () => {
-    if (hasDragged) return;
+    if (hasDragged) return; // ✅ Now safe — declared at top
     panel.classList.toggle("open");
     btn.innerHTML = panel.classList.contains("open") ? "✕" : "💬";
   });
@@ -221,6 +230,7 @@
     btn.innerHTML = "💬";
   });
 
+  // ---- Load GHL Chat Widget ----
   const chatScript = document.createElement("script");
   chatScript.src = "https://widgets.leadconnectorhq.com/loader.js";
   chatScript.setAttribute("data-resources-url",
@@ -228,13 +238,10 @@
   chatScript.setAttribute("data-widget-id", "68e5335fa41a10487480dc97");
   document.body.appendChild(chatScript);
 
+  // ---- Helpers ----
   function clamp(val, min, max) {
     return Math.max(min, Math.min(val, max));
   }
-
-  let isDragging = false;
-  let hasDragged = false;
-  let startX, startY, startLeft, startTop;
 
   function initPosition() {
     const rect = widget.getBoundingClientRect();
@@ -244,6 +251,7 @@
     widget.style.top = rect.top + "px";
   }
 
+  // ---- Drag Functions ----
   function initDrag(clientX, clientY) {
     isDragging = true;
     hasDragged = false;
@@ -280,6 +288,7 @@
     setTimeout(() => { hasDragged = false; }, 100);
   }
 
+  // ---- Mouse Events ----
   widget.addEventListener("mousedown", e => {
     e.preventDefault();
     initDrag(e.clientX, e.clientY);
@@ -287,6 +296,7 @@
   document.addEventListener("mousemove", e => onDragMove(e.clientX, e.clientY));
   document.addEventListener("mouseup", () => onDragEnd());
 
+  // ---- Touch Events ----
   widget.addEventListener("touchstart", e => {
     const t = e.touches[0];
     initDrag(t.clientX, t.clientY);
@@ -297,6 +307,7 @@
   }, { passive: true });
   document.addEventListener("touchend", () => onDragEnd());
 
+  // ---- Save / Load Position ----
   function savePosition() {
     localStorage.setItem("gs_widget_pos", JSON.stringify({
       left: widget.style.left,
