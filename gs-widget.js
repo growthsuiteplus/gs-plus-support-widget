@@ -1,3 +1,14 @@
+(function retryIfNeeded() {
+  if (document.getElementById("gs-plus-widget")) return;
+  if (!document.body) {
+    setTimeout(retryIfNeeded, 100);
+    return;
+  }
+  initWidget();
+})();
+
+function initWidget() {
+
 (function () {
 
   if (document.getElementById("gs-plus-widget")) return;
